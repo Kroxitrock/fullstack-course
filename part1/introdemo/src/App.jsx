@@ -23,7 +23,7 @@ const App = () => {
     <div>
       <Header course={course} />
       <Content parts={parts} />
-      <Total exercises={parts.map((part) => part.exercises)} />
+      <Total parts={parts} />
     </div>
   );
 };
