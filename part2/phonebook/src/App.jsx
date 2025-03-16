@@ -2,8 +2,9 @@ import {useState} from 'react'
 import Contact from "./components/Contact.jsx";
 
 const App = () => {
-    const [persons, setPersons] = useState([{name: 'Arto Hellas'}])
-    const [newName, setNewName] = useState('')
+    const [persons, setPersons] = useState([{name: 'Arto Hellas', number: "040-1234567"}]);
+    const [newName, setNewName] = useState('');
+    const [newNumber, setNewNumber] = useState('');
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -11,7 +12,12 @@ const App = () => {
             alert(`${newName} is already added to phonebook`);
             return;
         }
-        setPersons([...persons, {name: newName}])
+
+        if (persons.find(person => person.number === newNumber)) {
+            alert(`${newNumber} is already added to phonebook`);
+            return;
+        }
+        setPersons([...persons, {name: newName, number: newNumber}]);
     }
 
     return (<div>
@@ -19,6 +25,9 @@ const App = () => {
         <form onSubmit={e => handleSubmit(e)}>
             <div>
                 name: <input onChange={e => setNewName(e.target.value)} value={newName}/>
+            </div>
+            <div>
+                number: <input onChange={e => setNewNumber(e.target.value)} value={newNumber}/>
             </div>
             <div>
                 <button type="submit">add</button>
