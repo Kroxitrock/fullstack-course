@@ -2,13 +2,13 @@ import {useEffect, useState} from 'react'
 import Contact from "./components/Contact.jsx";
 import ContactForm from "./components/ContactForm.jsx";
 import Filter from "./components/Filter.jsx";
-import axios from "axios";
+import {addPerson, getAllPersons} from "./services/persons.js";
 
 const App = () => {
     const [persons, setPersons] = useState([]);
 
     useEffect(() => {
-        axios.get("http://localhost:3001/persons")
+        getAllPersons()
             .then(response => {
                 setPersons(response.data);
                 setFilteredPeople(response.data);
@@ -31,9 +31,14 @@ const App = () => {
             alert(`${newNumber} is already added to phonebook`);
             return;
         }
-        const newPeople = [...persons, {name: newName, number: newNumber, id: persons.length + 1}];
-        setPersons(newPeople);
-        setFilteredPeople(newPeople.filter(person => person.name.toLocaleLowerCase().includes(newFilter)));
+
+        addPerson({name: newName, number: newNumber})
+            .then(r => {
+                setPersons([...persons, r.data]);
+                setFilteredPeople([...persons, r.data].filter(person => person.name.toLocaleLowerCase().includes(newFilter)));
+                setNewName('');
+                setNewNumber('');
+            })
     }
 
     function handleFilter(e) {
