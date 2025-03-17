@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react'
 import Contact from "./components/Contact.jsx";
 import ContactForm from "./components/ContactForm.jsx";
 import Filter from "./components/Filter.jsx";
-import {addPerson, deletePerson, getAllPersons} from "./services/persons.js";
+import {addPerson, deletePerson, getAllPersons, updatePerson} from "./services/persons.js";
 
 const App = () => {
     const [persons, setPersons] = useState([]);
@@ -23,7 +23,19 @@ const App = () => {
     function handleSubmit(e) {
         e.preventDefault();
         if (persons.find(person => person.name === newName)) {
-            alert(`${newName} is already added to phonebook`);
+
+            if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+                const person = persons.find(person => person.name === newName);
+                const updatedPerson = {...person, number: newNumber};
+                return updatePerson(person.id, updatedPerson)
+                    .then(r => {
+                        setPersons(persons.map(person => person.id !== r.data.id ? person : r.data));
+                        setFilteredPeople(filteredPeople.map(person => person.id !== r.data.id ? person : r.data));
+                        setNewName('');
+                        setNewNumber('');
+                    });
+            }
+
             return;
         }
 
