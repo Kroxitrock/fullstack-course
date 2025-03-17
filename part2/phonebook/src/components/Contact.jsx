@@ -1,6 +1,8 @@
-const Contact = ({contact}) => {
+const Contact = ({contact, deleteCallback}) => {
+
     return (<div>
-        <p>{contact.name} {contact.number}</p>
+        <span>{contact.name} {contact.number}</span>
+        <button onClick={deleteCallback(contact.id)}> delete </button>
     </div>);
 }
 

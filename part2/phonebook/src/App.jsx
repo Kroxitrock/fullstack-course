@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react'
 import Contact from "./components/Contact.jsx";
 import ContactForm from "./components/ContactForm.jsx";
 import Filter from "./components/Filter.jsx";
-import {addPerson, getAllPersons} from "./services/persons.js";
+import {addPerson, deletePerson, getAllPersons} from "./services/persons.js";
 
 const App = () => {
     const [persons, setPersons] = useState([]);
@@ -52,6 +52,18 @@ const App = () => {
         setFilteredPeople(filteredPeople);
     }
 
+    function deleteCallback(id) {
+        return () => {
+            if (window.confirm(`Delete ${persons.find(person => person.id === id).name}?`)) {
+                deletePerson(id)
+                    .then(() => {
+                        setPersons(persons.filter(person => person.id !== id));
+                        setFilteredPeople(filteredPeople.filter(person => person.id !== id));
+                    });
+            }
+        }
+    }
+
     return (<div>
         <h2>Phonebook</h2>
         <Filter handleFilter={handleFilter}></Filter>
@@ -59,7 +71,8 @@ const App = () => {
         <ContactForm props={{handleSubmit, newName, setNewName, newNumber, setNewNumber}}></ContactForm>
         <h2>Numbers</h2>
         <div>
-            {filteredPeople.map((person) => (<Contact key={person.id} contact={person}/>))}
+            {filteredPeople.map((person) => (
+                <Contact key={person.id} contact={person} deleteCallback={deleteCallback}/>))}
         </div>
     </div>)
 }
