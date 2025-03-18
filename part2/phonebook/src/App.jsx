@@ -3,6 +3,7 @@ import Contact from "./components/Contact.jsx";
 import ContactForm from "./components/ContactForm.jsx";
 import Filter from "./components/Filter.jsx";
 import {addPerson, deletePerson, getAllPersons, updatePerson} from "./services/persons.js";
+import Notification from "./components/Notification.jsx";
 
 const App = () => {
     const [persons, setPersons] = useState([]);
@@ -19,6 +20,7 @@ const App = () => {
     const [newFilter, setNewFilter] = useState('');
     const [newName, setNewName] = useState('');
     const [newNumber, setNewNumber] = useState('');
+    const [notification, setNotification] = useState('')
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -33,6 +35,7 @@ const App = () => {
                         setFilteredPeople(filteredPeople.map(person => person.id !== r.data.id ? person : r.data));
                         setNewName('');
                         setNewNumber('');
+                        setNotification(r.data.name);
                     });
             }
 
@@ -50,6 +53,7 @@ const App = () => {
                 setFilteredPeople([...persons, r.data].filter(person => person.name.toLocaleLowerCase().includes(newFilter)));
                 setNewName('');
                 setNewNumber('');
+                setNotification(r.data.name);
             })
     }
 
@@ -78,6 +82,7 @@ const App = () => {
 
     return (<div>
         <h2>Phonebook</h2>
+        <Notification message={notification} setMessage={setNotification}></Notification>
         <Filter handleFilter={handleFilter}></Filter>
         <h3>Add a new</h3>
         <ContactForm props={{handleSubmit, newName, setNewName, newNumber, setNewNumber}}></ContactForm>
