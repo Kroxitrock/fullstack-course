@@ -18,7 +18,11 @@ const CountryDashboard = ({countryQuery = '', countries = []}) => {
     }
 
     return <>
-        {filteredCountries.map((country) => (<p key={country.cca3}>{country.name.common}</p>))}
+        {filteredCountries.map((country) => (
+            <div>
+                <span key={country.cca3}>{country.name.common}</span>
+                <button onClick={() => setFilteredCountries([country])}>Show</button>
+            </div>))}
     </>
 }
 
