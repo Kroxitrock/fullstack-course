@@ -2,7 +2,7 @@
   "persons": [
     {
       "name": "Ada Lovelace",
-      "number": "1234567890",
+      "number": "56789",
       "id": "2"
     },
     {
@@ -29,11 +29,6 @@
       "id": "a454",
       "name": "andrey dobrev",
       "number": "23456789098765678"
-    },
-    {
-      "id": "c3f3",
-      "name": "test test",
-      "number": "12312412"
     }
   ]
 }

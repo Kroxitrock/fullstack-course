@@ -1,4 +1,4 @@
-const Notification = ({message, setMessage}) => {
+const Notification = ({message, setMessage, notificationType}) => {
 
     if (!message || message.trim() === '') {
         return null
@@ -8,7 +8,7 @@ const Notification = ({message, setMessage}) => {
         setMessage('')
     }, 5000);
     return (
-        <div className='error'>
+        <div className={notificationType === 'error'? 'error' : 'success'}>
             {message}
         </div>
     )

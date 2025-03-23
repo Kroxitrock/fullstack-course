@@ -21,6 +21,7 @@ const App = () => {
     const [newName, setNewName] = useState('');
     const [newNumber, setNewNumber] = useState('');
     const [notification, setNotification] = useState('')
+    const [notificationType, setNotificationType] = useState('')
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -36,6 +37,13 @@ const App = () => {
                         setNewName('');
                         setNewNumber('');
                         setNotification(r.data.name);
+                        setNotificationType('success');
+                    })
+                    .catch(() => {
+                        setNotification(`Information of ${newName} has already been removed from server`);
+                        setNotificationType('error');
+                        setPersons(persons.filter(person => person.name !== newName));
+                        setFilteredPeople(filteredPeople.filter(person => person.name !== newName));
                     });
             }
 
@@ -54,7 +62,11 @@ const App = () => {
                 setNewName('');
                 setNewNumber('');
                 setNotification(r.data.name);
-            })
+                setNotificationType('success');
+            }).catch(() => {
+                setNotification('Error adding person');
+                setNotificationType('error');
+        });
     }
 
     function handleFilter(e) {
@@ -75,6 +87,12 @@ const App = () => {
                     .then(() => {
                         setPersons(persons.filter(person => person.id !== id));
                         setFilteredPeople(filteredPeople.filter(person => person.id !== id));
+                    })
+                    .catch(() => {
+                        setNotification(`Information of ${persons.find(person => person.id === id).name} has already been removed from server`);
+                        setNotificationType('error');
+                        setPersons(persons.filter(person => person.id !== id));
+                        setFilteredPeople(filteredPeople.filter(person => person.id !== id));
                     });
             }
         }
@@ -82,7 +100,8 @@ const App = () => {
 
     return (<div>
         <h2>Phonebook</h2>
-        <Notification message={notification} setMessage={setNotification}></Notification>
+        <Notification message={notification} setMessage={setNotification}
+                      notificationType={notificationType}></Notification>
         <Filter handleFilter={handleFilter}></Filter>
         <h3>Add a new</h3>
         <ContactForm props={{handleSubmit, newName, setNewName, newNumber, setNewNumber}}></ContactForm>
