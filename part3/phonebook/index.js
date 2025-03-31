@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-
+app.use(express.json());
 const persons = [
     {
         "id": "1",
@@ -34,6 +34,35 @@ app.get('/api/persons/:id', (req, res) => {
     } else {
         res.status(404).send({ error: 'Person not found' });
     }
+});
+
+app.delete('/api/persons/:id', (req, res) => {
+    const id = req.params.id;
+    const index = persons.findIndex(p => p.id === id);
+    if (index !== -1) {
+        persons.splice(index, 1);
+        res.status(204).end();
+    } else {
+        res.status(404).send({error: 'Person not found'});
+    }
+});
+
+app.post('/api/persons', (req, res) => {
+    const newPerson = req.body;
+
+    console.log(newPerson);
+
+    if (!newPerson.name || !newPerson.number) {
+        return res.status(400).json({error: 'Name or number is missing'});
+    }
+
+    if (persons.find(p => p.name === newPerson.name)) {
+        return res.status(400).json({error: 'Name must be unique'});
+    }
+
+    newPerson.id = (Math.random() * 1000000).toString();
+    persons.push(newPerson);
+    res.status(201).json(newPerson);
 })
 
 app.get('/info', (req, res) => {
