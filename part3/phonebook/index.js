@@ -1,20 +1,8 @@
 const express = require('express');
 const morgan = require("morgan");
 const cors = require('cors');
-const mongoose = require('mongoose');
-
-if (process.argv.length < 3) {
-    console.log('give password as argument')
-    process.exit(1)
-}
-
-const password = process.argv[2]
-
-const url = `mongodb+srv://kroxitrock:${password}@cluster0.xosbq1g.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
-
-mongoose.set('strictQuery',false)
-
-mongoose.connect(url)
+const Phonebook = require('./models/phonebook');
+require('dotenv').config();
 
 
 const app = express();
@@ -32,28 +20,18 @@ app.use(morgan(function (tokens, req, res) {
 app.use(cors())
 app.use(express.static('_dist'));
 
-const persons = [
-    {
-        "id": "1",
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": "2",
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": "3",
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": "4",
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
+const persons = [];
+
+Phonebook.find({})
+    .then(result => {
+        result.forEach(phonebook => {
+            persons.push({
+                id: phonebook._id.toString(),
+                name: phonebook.name,
+                number: phonebook.number
+            });
+        });
+    })
 
 app.get('/api/persons', (req, res) => res.json(persons));
 
@@ -89,7 +67,6 @@ app.post('/api/persons', (req, res) => {
         return res.status(400).json({error: 'Name must be unique'});
     }
 
-    newPerson.id = (Math.random() * 1000000).toString();
     persons.push(newPerson);
     res.status(201).json(newPerson);
 })
