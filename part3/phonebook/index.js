@@ -1,6 +1,22 @@
 const express = require('express');
 const morgan = require("morgan");
 const cors = require('cors');
+const mongoose = require('mongoose');
+
+if (process.argv.length < 3) {
+    console.log('give password as argument')
+    process.exit(1)
+}
+
+const password = process.argv[2]
+
+const url = `mongodb+srv://kroxitrock:${password}@cluster0.xosbq1g.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+
+mongoose.set('strictQuery',false)
+
+mongoose.connect(url)
+
+
 const app = express();
 app.use(express.json());
 app.use(morgan(function (tokens, req, res) {
