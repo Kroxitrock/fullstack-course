@@ -67,8 +67,14 @@ app.post('/api/persons', (req, res) => {
         return res.status(400).json({error: 'Name must be unique'});
     }
 
-    persons.push(newPerson);
-    res.status(201).json(newPerson);
+    Phonebook.create({
+        name: newPerson.name,
+        number: newPerson.number
+    }).then(result => {
+        newPerson.id = result._id.toString();
+        persons.push({...newPerson, id : result._id.toString()});
+        res.status(201).json(newPerson);
+    });
 })
 
 app.get('/info', (req, res) => {
