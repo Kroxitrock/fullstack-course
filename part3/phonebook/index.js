@@ -47,13 +47,18 @@ app.get('/api/persons/:id', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = req.params.id;
-    const index = persons.findIndex(p => p.id === id);
-    if (index !== -1) {
-        persons.splice(index, 1);
-        res.status(204).end();
-    } else {
-        res.status(404).send({error: 'Person not found'});
-    }
+
+    Phonebook.deleteOne({ _id: id })
+        .then(result => {
+            if (result.deletedCount === 0) {
+                return res.status(404).send({ error: 'Person not found' });
+            }
+            const index = persons.findIndex(p => p.id === id);
+            if (index !== -1) {
+                persons.splice(index, 1);
+            }
+            res.status(204).end();
+        })
 });
 
 app.post('/api/persons', (req, res) => {
