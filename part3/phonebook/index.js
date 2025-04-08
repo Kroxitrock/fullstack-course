@@ -63,9 +63,9 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 app.post('/api/persons', (req, res, next) => {
     const newPerson = req.body;
-
-    if (!newPerson.name || !newPerson.number) {
-        return res.status(400).json({error: 'Name or number is missing'});
+    const validation = validatePerson(newPerson, res);
+    if (validation) {
+        return validation;
     }
 
     Phonebook.create({
@@ -78,10 +78,9 @@ app.post('/api/persons', (req, res, next) => {
 
 app.put('/api/persons/:id', (req, res, next) => {
     const id = req.params.id;
-    const newPerson = req.body;
-
-    if (!newPerson.name || !newPerson.number) {
-        return res.status(400).json({error: 'Name or number is missing'});
+    const validation = validatePerson(newPerson, res);
+    if (validation) {
+        return validation;
     }
 
     Phonebook.findByIdAndUpdate(id, newPerson, { new: true })
@@ -93,6 +92,25 @@ app.put('/api/persons/:id', (req, res, next) => {
         })
         .catch(error => next(error));
 })
+
+function validatePerson(newPerson, res) {
+    if (!newPerson.name || !newPerson.number) {
+        return res.status(400).json({error: 'Name or number is missing'});
+    }
+
+    if (newPerson.name.length < 3) {
+        return res.status(400).json({error: 'Name must be at least 3 characters long'});
+    }
+
+    if (newPerson.number.length < 8) {
+        return res.status(400).json({error: 'Number must be at least 8 characters'});
+    }
+
+    if (!/^\d{2}-\d+$/.test(newPerson.number)) {
+        return res.status(400).json({error: 'Number must start with two digits, followed by a dash and then only numbers'});
+    }
+    return null;
+}
 
 app.get('/info', (req, res, next) => {
     const date = new Date();
