@@ -76,6 +76,24 @@ app.post('/api/persons', (req, res, next) => {
     }).catch(error => next(error));
 })
 
+app.put('/api/persons/:id', (req, res, next) => {
+    const id = req.params.id;
+    const newPerson = req.body;
+
+    if (!newPerson.name || !newPerson.number) {
+        return res.status(400).json({error: 'Name or number is missing'});
+    }
+
+    Phonebook.findByIdAndUpdate(id, newPerson, { new: true })
+        .then(updatedPerson => {
+            if (!updatedPerson) {
+                return res.status(404).send({ error: 'Person not found' });
+            }
+            res.json(updatedPerson);
+        })
+        .catch(error => next(error));
+})
+
 app.get('/info', (req, res) => {
     const date = new Date();
     const info = `<p>Phonebook has info for ${persons.length} people</p><p>${date}</p>`;
