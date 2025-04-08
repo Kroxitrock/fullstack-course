@@ -94,10 +94,11 @@ app.put('/api/persons/:id', (req, res, next) => {
         .catch(error => next(error));
 })
 
-app.get('/info', (req, res) => {
+app.get('/info', (req, res, next) => {
     const date = new Date();
-    const info = `<p>Phonebook has info for ${persons.length} people</p><p>${date}</p>`;
-    res.send(info);
+    Phonebook.countDocuments({}).then(count => {
+        res.send(`<p>Phonebook has info for ${count} people</p><p>${date}</p>`);
+    }).catch(error => next(error));
 })
 
 
