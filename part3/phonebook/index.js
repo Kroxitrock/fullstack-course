@@ -21,7 +21,7 @@ app.use(cors())
 app.use(express.static('_dist'));
 
 app.get('/api/persons', (req, res, next) => {
-    Phonebook.find({})
+    Phonebook.find({}, {}, {})
         .then(result => {
             const persons = result.map(phonebook => ({
                 id: phonebook._id.toString(),
@@ -37,7 +37,7 @@ app.get('/api/persons', (req, res, next) => {
 
 app.get('/api/persons/:id', (req, res, next) => {
     const id = req.params.id;
-    Phonebook.find({_id: id})
+    Phonebook.findById(id, {}, {})
         .then(result => {
             const persons = result.map(phonebook => ({
                 id: phonebook._id.toString(),
