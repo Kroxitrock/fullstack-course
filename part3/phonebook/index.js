@@ -20,32 +20,35 @@ app.use(morgan(function (tokens, req, res) {
 app.use(cors())
 app.use(express.static('_dist'));
 
-const persons = [];
-
-Phonebook.find({})
-    .then(result => {
-        result.forEach(phonebook => {
-            persons.push({
+app.get('/api/persons', (req, res, next) => {
+    Phonebook.find({})
+        .then(result => {
+            const persons = result.map(phonebook => ({
                 id: phonebook._id.toString(),
                 name: phonebook.name,
                 number: phonebook.number
-            });
-        });
-    })
-
-app.get('/api/persons', (req, res) => res.json(persons));
-
-app.get('/api/persons/:id', (req, res) => {
-    const id = req.params.id;
-    const person = persons.find(p => p.id === id);
-    if (person) {
-        res.json(person);
-    } else {
-        res.status(404).send({ error: 'Person not found' });
-    }
+            }));
+            res.json(persons);
+        })
+        .catch(error => {
+            next(error);
+        })
 });
 
-app.delete('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
+    const id = req.params.id;
+    Phonebook.find({_id: id})
+        .then(result => {
+            const persons = result.map(phonebook => ({
+                id: phonebook._id.toString(),
+                name: phonebook.name,
+                number: phonebook.number
+            }));
+            res.json(persons);
+        }).catch(error => next(error))
+});
+
+app.delete('/api/persons/:id', (req, res, next) => {
     const id = req.params.id;
 
     Phonebook.deleteOne({ _id: id })
@@ -53,33 +56,24 @@ app.delete('/api/persons/:id', (req, res) => {
             if (result.deletedCount === 0) {
                 return res.status(404).send({ error: 'Person not found' });
             }
-            const index = persons.findIndex(p => p.id === id);
-            if (index !== -1) {
-                persons.splice(index, 1);
-            }
             res.status(204).end();
         })
+        .catch(error => next(error));
 });
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const newPerson = req.body;
 
     if (!newPerson.name || !newPerson.number) {
         return res.status(400).json({error: 'Name or number is missing'});
     }
 
-    if (persons.find(p => p.name === newPerson.name)) {
-        return res.status(400).json({error: 'Name must be unique'});
-    }
-
     Phonebook.create({
         name: newPerson.name,
         number: newPerson.number
-    }).then(result => {
-        newPerson.id = result._id.toString();
-        persons.push({...newPerson, id : result._id.toString()});
+    }).then(_result => {
         res.status(201).json(newPerson);
-    });
+    }).catch(error => next(error));
 })
 
 app.get('/info', (req, res) => {
@@ -88,6 +82,22 @@ app.get('/info', (req, res) => {
     res.send(info);
 })
 
+
+const errorHandler = (error, req, res, next) => {
+    console.error(error.message);
+
+    console.log("error", error.name);
+    if (error.name === 'CastError') {
+        return res.status(400).send({error: 'malformatted id'});
+    } else if (error.name === 'ValidationError') {
+        return res.status(400).json({error: error.message});
+    }
+
+    next(error);
+}
+app.use(errorHandler);
+
 app.listen(3001, () => {
     console.log('Server is running on port 3001');
 })
+
