@@ -70,5 +70,44 @@ describe('favorite blog', () => {
         const result = listHelper.favoriteBlog([blog1, blog2])
         assert.deepStrictEqual(result, blog2)
     })
+})
 
+describe('most blogs', () => {
+    const blogs = [{
+        _id: '5a422aa71b54a676234d17f9',
+        title: 'Go To Statement Considered Harmful',
+        author: 'Edsger W. Dijkstra',
+        url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
+        likes: 5,
+        __v: 0
+    }, {
+        _id: '5a422aa71b54a676234d17f8',
+        title: 'Go To Statement Considered Harmful',
+        author: 'Edsger W. Dijkstra',
+        url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
+        likes: 6,
+        __v: 0
+    }, {
+        _id: '5a422aa71b54a676234d17f87',
+        title: 'Mdaaa',
+        author: 'Sashko',
+        url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
+        likes: 6,
+        __v: 0
+    }]
+
+    test('when list is empty, returns null', () => {
+        const result = listHelper.mostBlogs([])
+        assert.strictEqual(result, null)
+    })
+
+    test('when list has only one blog, returns that author with 1 blog', () => {
+        const result = listHelper.mostBlogs([blogs[0]])
+        assert.deepStrictEqual(result, { author: blogs[0].author, blogs: 1 })
+    })
+
+    test('when list has multiple blogs, returns the author with most blogs', () => {
+        const result = listHelper.mostBlogs(blogs)
+        assert.deepStrictEqual(result, { author: 'Edsger W. Dijkstra', blogs: 2 })
+    })
 })
