@@ -89,6 +89,30 @@ describe("/blogs", () => {
             assert.strictEqual(createdBlog.likes, 0);
         })
 
+        test("should return 400 if title is missing missing", async () => {
+            const newBlog = {
+                author: "New Author",
+                url: "http://example.com/new",
+            }
+
+            await api.post("/api/blogs")
+                .send(newBlog)
+                .expect(400)
+                .expect("Content-Type", /application\/json/);
+        })
+
+        test("should return 400 if url is missing missing", async () => {
+            const newBlog = {
+                title: "New Blog",
+                author: "New Author",
+            }
+
+            await api.post("/api/blogs")
+                .send(newBlog)
+                .expect(400)
+                .expect("Content-Type", /application\/json/);
+        })
+
     })
 
 })
