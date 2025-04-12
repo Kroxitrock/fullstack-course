@@ -7,7 +7,6 @@ const api = supertest(app);
 
 const Blog = require("../../models/blog.model");
 const assert = require("node:assert");
-const {Mongoose} = require("mongoose");
 
 describe("/blogs", () => {
     const blog1 = {
@@ -133,6 +132,73 @@ describe("/blogs", () => {
             const blogsAfter = await api.get("/api/blogs");
             assert.strictEqual(blogsAfter.body.length, blogsBefore.body.length - 1);
             assert.strictEqual(blogsAfter.body.find(blog => blog.id === blogToDelete.id), undefined);
+        })
+    })
+
+    describe("PUT ", () => {
+
+        test("should return 400 if title is missing", async () => {
+            const blogsBefore = await api.get("/api/blogs");
+            const blogToUpdate = blogsBefore.body[0];
+
+            blogToUpdate.title = undefined;
+
+            await api.put(`/api/blogs/${blogToUpdate.id}`)
+                .send(blogToUpdate)
+                .expect(400)
+                .expect("Content-Type", /application\/json/);
+        })
+
+        test("should return 400 if url is missing", async () => {
+            const blogsBefore = await api.get("/api/blogs");
+            const blogToUpdate = blogsBefore.body[0];
+
+            blogToUpdate.url = undefined;
+
+            await api.put(`/api/blogs/${blogToUpdate.id}`)
+                .send(blogToUpdate)
+                .expect(400)
+                .expect("Content-Type", /application\/json/);
+        })
+
+        test("should return 404 if blog not found", async () => {
+            const blogsBefore = await api.get("/api/blogs");
+            const blogToUpdate = blogsBefore.body[0];
+
+            const nonExistentId = new mongoose.Types.ObjectId();
+
+            await api.put(`/api/blogs/${nonExistentId}`)
+                .send(blogToUpdate)
+                .expect(404)
+                .expect("Content-Type", /application\/json/);
+        })
+
+        test('should update a blog', async () => {
+            const blogsBefore = await api.get("/api/blogs");
+            const blogToUpdate = blogsBefore.body[0];
+
+            blogToUpdate.likes++;
+
+            const response = await api.put(`/api/blogs/${blogToUpdate.id}`)
+                .send(blogToUpdate)
+                .expect(200)
+                .expect("Content-Type", /application\/json/);
+
+            assert.strictEqual(response.body.likes, blogToUpdate.likes);
+        })
+
+        test("should update likes to 0 if likes are missing", async () => {
+            const blogsBefore = await api.get("/api/blogs");
+            const blogToUpdate = blogsBefore.body[0];
+
+            blogToUpdate.likes = undefined;
+
+            const response = await api.put(`/api/blogs/${blogToUpdate.id}`)
+                .send(blogToUpdate)
+                .expect(200)
+                .expect("Content-Type", /application\/json/);
+
+            assert.strictEqual(response.body.likes, 0);
         })
     })
 
