@@ -1,6 +1,7 @@
 const {test, describe, before, after} = require('node:test')
 const mongoose = require("mongoose");
 const supertest = require("supertest");
+const bcrypt = require("bcrypt");
 const app = require("../../app");
 
 const api = supertest(app);
@@ -23,6 +24,8 @@ describe("/users", () => {
 
     before(async () => {
         await User.deleteMany({});
+        user1.password = await bcrypt.hash(user1.password, 10);
+        user2.password = await bcrypt.hash(user2.password, 10);
         await (new User(user1)).save();
         await (new User(user2)).save();
     })
@@ -112,6 +115,24 @@ describe("/users", () => {
                 .expect(400)
                 .expect("Content-Type", /application\/json/);
             assert.strictEqual(response.body.error, "username already exists");
+        })
+    })
+
+    describe("/login", () => {
+        describe("POST", () => {
+            test("should return a token and user info", async () => {
+                const loginData = {
+                    username: user1.username,
+                    password: "password1",
+                }
+                const response = await api.post("/api/users/login")
+                    .send(loginData)
+                    .expect(200)
+                    .expect("Content-Type", /application\/json/);
+                assert.strictEqual(response.body.username, user1.username);
+                assert.strictEqual(response.body.name, user1.name);
+                assert.notStrictEqual(response.body.token, undefined);
+            })
         })
     })
 

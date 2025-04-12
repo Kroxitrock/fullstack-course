@@ -2,6 +2,7 @@ const {test, describe, before, after} = require('node:test')
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../../app");
+const bcrypt = require("bcrypt");
 
 const api = supertest(app);
 
@@ -30,6 +31,7 @@ describe("/blogs", () => {
 
     before(async () => {
         await User.deleteMany({})
+        user.password = await bcrypt.hash(user.password, 10);
         const savedUser = await (new User(user)).save();
         blog1.user = savedUser.id;
         blog2.user = savedUser.id;
@@ -66,6 +68,14 @@ describe("/blogs", () => {
     });
 
     describe("POST ", () => {
+
+        let bearerToken;
+        before(async () => {
+            const response = await api.post("/api/users/login")
+                .send({ username: user.username, password: "testpassword" });
+            bearerToken = `Bearer ${response.body.token}`;
+        })
+
         test("should create a new blog", async () => {
             const newBlog = {
                 title: "New Blog",
@@ -75,6 +85,7 @@ describe("/blogs", () => {
             }
 
             const response = await api.post("/api/blogs")
+                .set("Authorization", bearerToken)
                 .send(newBlog)
                 .expect(201)
                 .expect("Content-Type", /application\/json/);
@@ -95,6 +106,7 @@ describe("/blogs", () => {
             }
 
             const response = await api.post("/api/blogs")
+                .set("Authorization", bearerToken)
                 .send(newBlog)
                 .expect(201)
                 .expect("Content-Type", /application\/json/);
@@ -110,6 +122,7 @@ describe("/blogs", () => {
             }
 
             await api.post("/api/blogs")
+                .set("Authorization", bearerToken)
                 .send(newBlog)
                 .expect(400)
                 .expect("Content-Type", /application\/json/);
@@ -122,8 +135,15 @@ describe("/blogs", () => {
             }
 
             await api.post("/api/blogs")
+                .set("Authorization", bearerToken)
                 .send(newBlog)
                 .expect(400)
+                .expect("Content-Type", /application\/json/);
+        })
+
+        test("should return 401 if token is missing", async () => {
+            await api.post("/api/blogs")
+                .expect(401)
                 .expect("Content-Type", /application\/json/);
         })
     })
