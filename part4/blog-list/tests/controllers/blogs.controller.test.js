@@ -7,6 +7,7 @@ const api = supertest(app);
 
 const Blog = require("../../models/blog.model");
 const assert = require("node:assert");
+const {Mongoose} = require("mongoose");
 
 describe("/blogs", () => {
     const blog1 = {
@@ -112,7 +113,31 @@ describe("/blogs", () => {
                 .expect(400)
                 .expect("Content-Type", /application\/json/);
         })
+    })
 
+    describe("DELETE ", () => {
+        test("should return 404 if blog not found", async () => {
+            const nonExistentId = new mongoose.Types.ObjectId();
+            await api.delete(`/api/blogs/${nonExistentId}`)
+                .expect(404)
+                .expect("Content-Type", /application\/json/);
+        })
+
+        test("should delete a blog", async () => {
+            const blogsBefore = await api.get("/api/blogs");
+            const blogToDelete = blogsBefore.body[0];
+
+            await api.delete(`/api/blogs/${blogToDelete.id}`)
+                .expect(204);
+
+            const blogsAfter = await api.get("/api/blogs");
+            assert.strictEqual(blogsAfter.body.length, blogsBefore.body.length - 1);
+            assert.strictEqual(blogsAfter.body.find(blog => blog.id === blogToDelete.id), undefined);
+        })
+    })
+
+    after(async () => {
+        await mongoose.connection.close();
     })
 
 })
