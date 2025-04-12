@@ -4,19 +4,12 @@ const blogsRouter = require('express').Router();
 const config = require('../utils/config')
 const jwt = require('jsonwebtoken')
 
-const getTokenFrom = request => {
-    const authorization = request.get('authorization')
-    if (authorization && authorization.startsWith('Bearer ')) {
-        return authorization.replace('Bearer ', '')
-    }
-    return null
-}
-
 const getUserFromToken = async (request) => {
-    const token = getTokenFrom(request)
+    const token = request.token
     if (!token) {
         return null
     }
+
     const decodedToken = jwt.verify(token, config.JWT_SECRET)
     if (!decodedToken.id) {
         return null
