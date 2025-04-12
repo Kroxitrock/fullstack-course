@@ -28,46 +28,67 @@ describe("/blogs", () => {
         await (new Blog(blog2)).save();
     });
 
-    test("should return all blogs", async () => {
-        const response = await api.get("/api/blogs")
-            .expect(200)
-            .expect("Content-Type", /application\/json/);
-        assert.strictEqual(response.body.length, 2);
-        assert.strictEqual(response.body[0].name, blog1.name);
-        assert.strictEqual(response.body[1].name, blog2.name);
+    describe("GET ", () => {
+        test("should return all blogs", async () => {
+            const response = await api.get("/api/blogs")
+                .expect(200)
+                .expect("Content-Type", /application\/json/);
+            assert.strictEqual(response.body.length, 2);
+            assert.strictEqual(response.body[0].name, blog1.name);
+            assert.strictEqual(response.body[1].name, blog2.name);
+        });
+
+        test("should return a blog with an id field", async () => {
+            const response = await api.get("/api/blogs")
+                .expect(200)
+                .expect("Content-Type", /application\/json/);
+            assert.notStrictEqual(response.body[0].id, undefined);
+            assert.strictEqual(response.body[0]._id, undefined);
+        });
+
+        assert(async () => {
+            await mongoose.connection.close();
+        });
     });
 
-    test("should return a blog with an id field", async () => {
-        const response = await api.get("/api/blogs")
-            .expect(200)
-            .expect("Content-Type", /application\/json/);
-        assert.notStrictEqual(response.body[0].id, undefined);
-        assert.strictEqual(response.body[0]._id, undefined);
-    });
+    describe("POST ", () => {
+        test("should create a new blog", async () => {
+            const newBlog = {
+                title: "New Blog",
+                author: "New Author",
+                url: "http://example.com/new",
+                likes: 5,
+            }
 
-    assert(async () => {
-        await mongoose.connection.close();
-    });
+            const response = await api.post("/api/blogs")
+                .send(newBlog)
+                .expect(201)
+                .expect("Content-Type", /application\/json/);
 
-    test("should create a new blog", async () => {
-        const newBlog = {
-            title: "New Blog",
-            author: "New Author",
-            url: "http://example.com/new",
-            likes: 5,
-        }
+            const createdBlog = response.body;
+            assert.notStrictEqual(createdBlog.id, undefined);
+            assert.strictEqual(createdBlog.title, newBlog.title);
+            assert.strictEqual(createdBlog.author, newBlog.author);
+            assert.strictEqual(createdBlog.url, newBlog.url);
+            assert.strictEqual(createdBlog.likes, newBlog.likes);
+        });
 
-        const response = await api.post("/api/blogs")
-            .send(newBlog)
-            .expect(201)
-            .expect("Content-Type", /application\/json/);
+        test("should set likes to 0 if not provided", async () => {
+            const newBlog = {
+                title: "New Blog",
+                author: "New Author",
+                url: "http://example.com/new",
+            }
 
-        const createdBlog = response.body;
-        assert.notStrictEqual(createdBlog.id, undefined);
-        assert.strictEqual(createdBlog.title, newBlog.title);
-        assert.strictEqual(createdBlog.author, newBlog.author);
-        assert.strictEqual(createdBlog.url, newBlog.url);
-        assert.strictEqual(createdBlog.likes, newBlog.likes);
-    });
+            const response = await api.post("/api/blogs")
+                .send(newBlog)
+                .expect(201)
+                .expect("Content-Type", /application\/json/);
+
+            const createdBlog = response.body;
+            assert.strictEqual(createdBlog.likes, 0);
+        })
+
+    })
 
 })
