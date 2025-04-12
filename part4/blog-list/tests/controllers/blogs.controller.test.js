@@ -149,10 +149,26 @@ describe("/blogs", () => {
     })
 
     describe("DELETE ", () => {
+        let bearerToken;
+        before(async () => {
+            const response = await api.post("/api/users/login")
+                .send({ username: user.username, password: "testpassword" });
+            bearerToken = `Bearer ${response.body.token}`;
+        })
+
         test("should return 404 if blog not found", async () => {
             const nonExistentId = new mongoose.Types.ObjectId();
             await api.delete(`/api/blogs/${nonExistentId}`)
                 .expect(404)
+                .expect("Content-Type", /application\/json/);
+        })
+
+        test("should return 401 if token is missing", async () => {
+            const blogsBefore = await api.get("/api/blogs");
+            const blogToDelete = blogsBefore.body[0];
+
+            await api.delete(`/api/blogs/${blogToDelete.id}`)
+                .expect(401)
                 .expect("Content-Type", /application\/json/);
         })
 
@@ -161,6 +177,7 @@ describe("/blogs", () => {
             const blogToDelete = blogsBefore.body[0];
 
             await api.delete(`/api/blogs/${blogToDelete.id}`)
+                .set("Authorization", bearerToken)
                 .expect(204);
 
             const blogsAfter = await api.get("/api/blogs");
