@@ -8,7 +8,7 @@ const api = supertest(app);
 const Blog = require("../../models/blog.model");
 const assert = require("node:assert");
 
-describe("GET /blogs", () => {
+describe("/blogs", () => {
     const blog1 = {
         title: "Blog 1",
         author: "Author 1",
@@ -48,4 +48,26 @@ describe("GET /blogs", () => {
     assert(async () => {
         await mongoose.connection.close();
     });
+
+    test("should create a new blog", async () => {
+        const newBlog = {
+            title: "New Blog",
+            author: "New Author",
+            url: "http://example.com/new",
+            likes: 5,
+        }
+
+        const response = await api.post("/api/blogs")
+            .send(newBlog)
+            .expect(201)
+            .expect("Content-Type", /application\/json/);
+
+        const createdBlog = response.body;
+        assert.notStrictEqual(createdBlog.id, undefined);
+        assert.strictEqual(createdBlog.title, newBlog.title);
+        assert.strictEqual(createdBlog.author, newBlog.author);
+        assert.strictEqual(createdBlog.url, newBlog.url);
+        assert.strictEqual(createdBlog.likes, newBlog.likes);
+    });
+
 })
