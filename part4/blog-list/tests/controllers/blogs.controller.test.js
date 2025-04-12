@@ -6,6 +6,7 @@ const app = require("../../app");
 const api = supertest(app);
 
 const Blog = require("../../models/blog.model");
+const User = require("../../models/user.model");
 const assert = require("node:assert");
 
 describe("/blogs", () => {
@@ -21,8 +22,17 @@ describe("/blogs", () => {
         url: "http://example.com/2",
         likes: 20,
     }
+    const user = {
+        username: "testuser",
+        password: "testpassword",
+        name: "Test User",
+    }
 
     before(async () => {
+        await User.deleteMany({})
+        const savedUser = await (new User(user)).save();
+        blog1.user = savedUser.id;
+        blog2.user = savedUser.id;
         await Blog.deleteMany({});
         await (new Blog(blog1)).save();
         await (new Blog(blog2)).save();
@@ -36,6 +46,10 @@ describe("/blogs", () => {
             assert.strictEqual(response.body.length, 2);
             assert.strictEqual(response.body[0].name, blog1.name);
             assert.strictEqual(response.body[1].name, blog2.name);
+            assert.strictEqual(response.body[0].user.username, user.username);
+            assert.strictEqual(response.body[1].user.username, user.username);
+            assert.strictEqual(response.body[0].user.password, undefined);
+            assert.strictEqual(response.body[1].user.password, undefined);
         });
 
         test("should return a blog with an id field", async () => {
@@ -140,6 +154,7 @@ describe("/blogs", () => {
         test("should return 400 if title is missing", async () => {
             const blogsBefore = await api.get("/api/blogs");
             const blogToUpdate = blogsBefore.body[0];
+            blogToUpdate.user = blogToUpdate.user.id;
 
             blogToUpdate.title = undefined;
 
@@ -152,6 +167,7 @@ describe("/blogs", () => {
         test("should return 400 if url is missing", async () => {
             const blogsBefore = await api.get("/api/blogs");
             const blogToUpdate = blogsBefore.body[0];
+            blogToUpdate.user = blogToUpdate.user.id;
 
             blogToUpdate.url = undefined;
 
@@ -164,6 +180,7 @@ describe("/blogs", () => {
         test("should return 404 if blog not found", async () => {
             const blogsBefore = await api.get("/api/blogs");
             const blogToUpdate = blogsBefore.body[0];
+            blogToUpdate.user = blogToUpdate.user.id;
 
             const nonExistentId = new mongoose.Types.ObjectId();
 
@@ -176,6 +193,7 @@ describe("/blogs", () => {
         test('should update a blog', async () => {
             const blogsBefore = await api.get("/api/blogs");
             const blogToUpdate = blogsBefore.body[0];
+            blogToUpdate.user = blogToUpdate.user.id;
 
             blogToUpdate.likes++;
 
@@ -190,6 +208,7 @@ describe("/blogs", () => {
         test("should update likes to 0 if likes are missing", async () => {
             const blogsBefore = await api.get("/api/blogs");
             const blogToUpdate = blogsBefore.body[0];
+            blogToUpdate.user = blogToUpdate.user.id;
 
             blogToUpdate.likes = undefined;
 
