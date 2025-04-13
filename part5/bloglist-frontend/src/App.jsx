@@ -2,12 +2,15 @@ import {useEffect, useState} from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import Notification from "./components/Notification.jsx";
+import Toggleable from "./components/Toggleable.jsx";
+import CreateBlogForm from "./components/CreateBlogForm.jsx";
 
 const App = () => {
     const [blogs, setBlogs] = useState([])
     const [user, setUser] = useState(null)
     const [message, setMessage] = useState('')
     const [notificationType, setNotificationType] = useState('')
+    const [showCreateForm, setShowCreateForm] = useState(false)
 
     useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -69,41 +72,30 @@ const App = () => {
                 {blogs.map(blog =>
                     <Blog key={blog.id} blog={blog} />
                 )}
-                <form onSubmit={event => {
-                    event.preventDefault()
-                    const title = event.target.title.value
-                    const author = event.target.author.value
-                    const url = event.target.url.value
-                    blogService.create({ title, author, url })
-                        .then(newBlog => {
-                            setBlogs(blogs.concat(newBlog))
-                            event.target.title.value = ''
-                            event.target.author.value = ''
-                            event.target.url.value = ''
-                            setMessage(`a new blog ${newBlog.title} by ${newBlog.author} added`)
-                            setNotificationType('success')
-                        })
-                        .catch(error => {
-                            setMessage('blog creation failed')
-                            setNotificationType('error')
-                            console.error('Blog creation failed:', error)
-                        })
-                }}>
-                    <h2>create new</h2>
-                    <div>
-                        title
-                        <input type="text" name="title" />
-                    </div>
-                    <div>
-                        author
-                        <input type="text" name="author" />
-                    </div>
-                    <div>
-                        url
-                        <input type="text" name="url" />
-                    </div>
-                    <button type="submit">create</button>
-                </form>
+                <Toggleable buttonLabel="new blog" show={showCreateForm} setShowCreateForm={setShowCreateForm}>
+                    <CreateBlogForm setShowCreateForm={setShowCreateForm} handleCreateBlog={event => {
+                        event.preventDefault()
+                        const title = event.target.title.value
+                        const author = event.target.author.value
+                        const url = event.target.url.value
+                        blogService.create({ title, author, url })
+                            .then(newBlog => {
+                                setBlogs(blogs.concat(newBlog))
+                                event.target.title.value = ''
+                                event.target.author.value = ''
+                                event.target.url.value = ''
+                                setMessage(`a new blog ${newBlog.title} by ${newBlog.author} added`)
+                                setShowCreateForm(false)
+                                setNotificationType('success')
+                            })
+                            .catch(error => {
+                                setMessage('blog creation failed')
+                                setNotificationType('error')
+                                console.error('Blog creation failed:', error)
+                            })
+                        }
+                    }></CreateBlogForm>
+                </Toggleable>
             </div>
         )
     }
