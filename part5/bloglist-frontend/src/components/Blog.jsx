@@ -1,7 +1,7 @@
 import {useState} from "react";
 import blogService from "../services/blogs.js";
 
-const Blog = ({blog, onDelete, onLike}) => {
+const Blog = ({blog, username, onDelete, onLike}) => {
     const [view, setView] = useState(false)
 
     const blogStyle = {
@@ -36,7 +36,7 @@ const Blog = ({blog, onDelete, onLike}) => {
                         </button>
                     </p>
                     <p>{blog.user?.name}</p>
-                    <button onClick={(event) => {
+                    {blog.user?.username === username && <button onClick={(event) => {
                         event.preventDefault()
                         if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
                             blogService.remove(blog.id)
@@ -48,7 +48,7 @@ const Blog = ({blog, onDelete, onLike}) => {
                                 })
                         }
                     }}>remove
-                    </button>
+                    </button>}
                 </div>
             )}
         </div>

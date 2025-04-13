@@ -19,9 +19,8 @@ const App = () => {
     }, [])
 
     useEffect(() => {
-        const loggedUserJSON = window.localStorage.getItem('user')
-        if (loggedUserJSON) {
-            const user = JSON.parse(loggedUserJSON)
+        const user = blogService.getUser()
+        if (user) {
             setUser(user)
             blogService.setToken(user.token)
         }
@@ -84,19 +83,20 @@ const App = () => {
                 <h2>blogs</h2>
                 <Notification message={message} setMessage={setMessage}
                               notificationType={notificationType}></Notification>
-                <h2>{user.name} logged in <button onClick={event => {
+                <h2>{user.name} logged in <button id="logout-button" onClick={event => {
                     event.preventDefault()
                     window.localStorage.removeItem('user')
                     setUser(null)
                     blogService.setToken(null)
                 }}>logout</button></h2>
                 {blogs.map(blog =>
-                    <Blog key={blog.id} blog={blog} onDelete={onDelete} onLike={onLike}/>
+                    <Blog key={blog.id} blog={blog} username={user.username} onDelete={onDelete} onLike={onLike}/>
                 )}
                 <Toggleable buttonLabel="new blog" show={showCreateForm} setShowCreateForm={setShowCreateForm}>
                     <CreateBlogForm setShowCreateForm={setShowCreateForm} handleCreateBlog={blog => {
                         blogService.create(blog)
                             .then(newBlog => {
+                                newBlog.user = user
                                 setBlogs(blogs.concat(newBlog))
                                 setMessage(`a new blog ${newBlog.title} by ${newBlog.author} added`)
                                 setShowCreateForm(false)

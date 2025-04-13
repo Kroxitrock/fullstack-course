@@ -6,6 +6,14 @@ const setToken = (newToken) => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
 }
 
+const getUser = () => {
+    const user = JSON.parse(localStorage.getItem('user'))
+    if (user) {
+        return user
+    }
+    return null
+}
+
 const getAll = () => {
     const request = axios.get(baseUrl)
     return request.then(response => response.data)
@@ -44,4 +52,4 @@ const login = async (credentials) => {
     return response.data
 }
 
-export default { setToken, getAll, create, incrementLikes, remove, login }
+export default { setToken, getUser, getAll, create, incrementLikes, remove, login }

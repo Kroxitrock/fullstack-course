@@ -88,5 +88,24 @@ describe('Blog App', () => {
       cy.contains('removed')
     })
 
+    it(`A blog from another user can't be deleted`, () => {
+      const title = generateString(10)
+      cy.get('#new-blog-button').click()
+      cy.get('#title').type(title)
+      cy.get('#author').type('Author One')
+      cy.get('#url').type('https://example.com')
+      cy.get('#create-button').click()
+
+      cy.get('#logout-button').click()
+
+      cy.get("#username").type('user2')
+      cy.get("#password").type('password2')
+      cy.get('#login-button').click()
+
+      cy.get(`#view-button-${title}`).click();
+      cy.contains('remove').should('not.exist')
+
+    });
+
   })
 })
