@@ -14,7 +14,7 @@ const App = () => {
 
     useEffect(() => {
     blogService.getAll().then(blogs =>
-        setBlogs( blogs )
+        setBlogs(blogs.sort((a, b) => b.likes - a.likes))
     )}, [])
 
     useEffect(() => {
@@ -25,6 +25,14 @@ const App = () => {
             blogService.setToken(user.token)
         }
     }, [])
+
+    const onDelete = (id) => {
+        setBlogs(blogs.filter(blog => blog.id !== id))
+    }
+
+    const onUpdate = (updatedBlog) => {
+        setBlogs(blogs.map(blog => blog.id === updatedBlog.id ? updatedBlog : blog).sort((a, b) => b.likes - a.likes))
+    }
 
     if (user === null) {
         return (
@@ -70,7 +78,7 @@ const App = () => {
                     blogService.setToken(null)
                 }}>logout</button></h2>
                 {blogs.map(blog =>
-                    <Blog key={blog.id} blog={blog} />
+                    <Blog key={blog.id} blog={blog} onDelete={onDelete} onUpdate={onUpdate} />
                 )}
                 <Toggleable buttonLabel="new blog" show={showCreateForm} setShowCreateForm={setShowCreateForm}>
                     <CreateBlogForm setShowCreateForm={setShowCreateForm} handleCreateBlog={event => {

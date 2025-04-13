@@ -31,10 +31,17 @@ const incrementLikes = async (blog) => {
     return response.data
 }
 
+const remove = async (id) => {
+    const response = await axios.delete(`${baseUrl}/${id}`)
+    if (response.status !== 204) {
+        throw new Error('Failed to delete blog')
+    }
+}
+
 
 const login = async (credentials) => {
     const response = await axios.post('/api/users/login', credentials)
     return response.data
 }
 
-export default { setToken, getAll, create, incrementLikes, login }
+export default { setToken, getAll, create, incrementLikes, remove, login }

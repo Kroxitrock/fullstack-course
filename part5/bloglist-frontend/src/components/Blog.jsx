@@ -1,8 +1,7 @@
 import {useState} from "react";
 import blogService from "../services/blogs.js";
 
-const Blog = ({blog}) => {
-    const [blogView, setBlogView] = useState(blog)
+const Blog = ({blog, onDelete, onUpdate}) => {
     const [view, setView] = useState(false)
 
     const blogStyle = {
@@ -17,7 +16,7 @@ const Blog = ({blog}) => {
     return (
         <div style={blogStyle}>
             <div>
-                {blogView.title} {blogView.author}
+                {blog.title} {blog.author}
                 <button onClick={(event) => {
                     event.preventDefault()
                     setView(!view)
@@ -26,17 +25,28 @@ const Blog = ({blog}) => {
             </div>
             {view && (
                 <div>
-                    <p>{blogView.url}</p>
-                    <p>{blogView.likes} likes
+                    <p>{blog.url}</p>
+                    <p>{blog.likes} likes
                         <button onClick={async event => {
                             event.preventDefault()
-                            const updatedBlog = await blogService.incrementLikes(blogView);
-                            updatedBlog.user = blogView.user;
-                            setBlogView(updatedBlog);
+                            const updatedBlog = await blogService.incrementLikes(blog);
+                            onUpdate(updatedBlog);
                         }}>like
                         </button>
                     </p>
-                    <p>{blogView.user?.name}</p>
+                    <p>{blog.user?.name}</p>
+                    <button onClick={(event) => {
+                        event.preventDefault()
+                        if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+                            blogService.remove(blog.id)
+                                .then(() => {
+                                    onDelete(blog.id)
+                                })
+                                .catch(error => {
+                                    console.error('Error removing blog:', error)
+                                })
+                        }
+                    }}>remove</button>
                 </div>
             )}
         </div>
