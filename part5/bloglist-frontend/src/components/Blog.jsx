@@ -17,10 +17,12 @@ const Blog = ({blog, onDelete, onLike}) => {
         <div style={blogStyle}>
             <div>
                 {blog.title} {blog.author}
-                <button onClick={(event) => {
-                    event.preventDefault()
-                    setView(!view)
-                }}>view
+                <button
+                    id={`view-button-${blog.title}`}
+                    onClick={(event) => {
+                        event.preventDefault()
+                        setView(!view)
+                    }}>view
                 </button>
             </div>
             {view && (
