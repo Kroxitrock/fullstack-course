@@ -13,9 +13,10 @@ const App = () => {
     const [showCreateForm, setShowCreateForm] = useState(false)
 
     useEffect(() => {
-    blogService.getAll().then(blogs =>
-        setBlogs(blogs.sort((a, b) => b.likes - a.likes))
-    )}, [])
+        blogService.getAll().then(blogs =>
+            setBlogs(blogs.sort((a, b) => b.likes - a.likes))
+        )
+    }, [])
 
     useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem('user')
@@ -30,8 +31,13 @@ const App = () => {
         setBlogs(blogs.filter(blog => blog.id !== id))
     }
 
-    const onUpdate = (updatedBlog) => {
-        setBlogs(blogs.map(blog => blog.id === updatedBlog.id ? updatedBlog : blog).sort((a, b) => b.likes - a.likes))
+    const onLike = async (blog) => {
+        const updatedBlog = await blogService.incrementLikes(blog);
+        updatedBlog.user = blog.user
+        setBlogs(blogs
+            .map(blog => blog.id === updatedBlog.id ? updatedBlog : blog)
+            .sort((a, b) => b.likes - a.likes)
+        )
     }
 
     if (user === null) {
@@ -39,30 +45,30 @@ const App = () => {
             <div>
                 <h2>login</h2>
                 <form onSubmit={event => {
-                event.preventDefault()
-                const username = event.target.username.value
-                const password = event.target.password.value
-                blogService.login({ username, password })
-                    .then(user => {
-                        setUser(user)
-                        localStorage.setItem('user', JSON.stringify(user))
-                        blogService.setToken(user.token)
-                        event.target.username.value = ''
-                        event.target.password.value = ''
-                    })
-                    .catch(error => {
-                        console.error('Login failed:', error)
-                    })
+                    event.preventDefault()
+                    const username = event.target.username.value
+                    const password = event.target.password.value
+                    blogService.login({username, password})
+                        .then(user => {
+                            setUser(user)
+                            localStorage.setItem('user', JSON.stringify(user))
+                            blogService.setToken(user.token)
+                            event.target.username.value = ''
+                            event.target.password.value = ''
+                        })
+                        .catch(error => {
+                            console.error('Login failed:', error)
+                        })
                 }}>
-                <div>
-                    username
-                    <input type="text" name="username" />
-                </div>
-                <div>
-                    password
-                    <input type="password" name="password" />
-                </div>
-                <button type="submit">login</button>
+                    <div>
+                        username
+                        <input type="text" name="username"/>
+                    </div>
+                    <div>
+                        password
+                        <input type="password" name="password"/>
+                    </div>
+                    <button type="submit">login</button>
                 </form>
             </div>
         )
@@ -70,7 +76,8 @@ const App = () => {
         return (
             <div>
                 <h2>blogs</h2>
-                <Notification message={message} setMessage={setMessage} notificationType={notificationType}></Notification>
+                <Notification message={message} setMessage={setMessage}
+                              notificationType={notificationType}></Notification>
                 <h2>{user.name} logged in <button onClick={event => {
                     event.preventDefault()
                     window.localStorage.removeItem('user')
@@ -78,7 +85,7 @@ const App = () => {
                     blogService.setToken(null)
                 }}>logout</button></h2>
                 {blogs.map(blog =>
-                    <Blog key={blog.id} blog={blog} onDelete={onDelete} onUpdate={onUpdate} />
+                    <Blog key={blog.id} blog={blog} onDelete={onDelete} onLike={onLike}/>
                 )}
                 <Toggleable buttonLabel="new blog" show={showCreateForm} setShowCreateForm={setShowCreateForm}>
                     <CreateBlogForm setShowCreateForm={setShowCreateForm} handleCreateBlog={event => {
@@ -86,7 +93,7 @@ const App = () => {
                         const title = event.target.title.value
                         const author = event.target.author.value
                         const url = event.target.url.value
-                        blogService.create({ title, author, url })
+                        blogService.create({title, author, url})
                             .then(newBlog => {
                                 setBlogs(blogs.concat(newBlog))
                                 event.target.title.value = ''
@@ -101,7 +108,7 @@ const App = () => {
                                 setNotificationType('error')
                                 console.error('Blog creation failed:', error)
                             })
-                        }
+                    }
                     }></CreateBlogForm>
                 </Toggleable>
             </div>

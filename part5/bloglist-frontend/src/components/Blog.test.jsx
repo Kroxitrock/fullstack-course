@@ -1,4 +1,4 @@
-import {expect, test} from "vitest";
+import {expect, test, vi} from "vitest";
 import Blog from "./Blog.jsx";
 import {act, render} from "@testing-library/react";
 
@@ -33,4 +33,15 @@ test("renders url and likes when view button is clicked", () => {
     expect(component.container).toHaveTextContent("5 likes")
     expect(component.container).toHaveTextContent("Test User")
     expect(component.container).toHaveTextContent("remove")
+})
+
+test("clicking the like button twice calls event handler twice", async () => {
+    const mockHandler = vi.fn()
+    const component = render(<Blog blog={blog} onLike={mockHandler}/>)
+    const viewButton = component.getByText("view")
+    act(() => viewButton.click())
+    const likeButton = component.getByText("like")
+    act(() => likeButton.click())
+    act(() => likeButton.click())
+    expect(mockHandler.mock.calls).toHaveLength(2)
 })

@@ -1,7 +1,7 @@
 import {useState} from "react";
 import blogService from "../services/blogs.js";
 
-const Blog = ({blog, onDelete, onUpdate}) => {
+const Blog = ({blog, onDelete, onLike}) => {
     const [view, setView] = useState(false)
 
     const blogStyle = {
@@ -29,8 +29,7 @@ const Blog = ({blog, onDelete, onUpdate}) => {
                     <p>{blog.likes} likes
                         <button onClick={async event => {
                             event.preventDefault()
-                            const updatedBlog = await blogService.incrementLikes(blog);
-                            onUpdate(updatedBlog);
+                            onLike(blog)
                         }}>like
                         </button>
                     </p>
@@ -46,7 +45,8 @@ const Blog = ({blog, onDelete, onUpdate}) => {
                                     console.error('Error removing blog:', error)
                                 })
                         }
-                    }}>remove</button>
+                    }}>remove
+                    </button>
                 </div>
             )}
         </div>
