@@ -29,6 +29,8 @@ const App = () => {
 
     const onDelete = (id) => {
         setBlogs(blogs.filter(blog => blog.id !== id))
+        setNotificationType('success')
+        setMessage('blog removed')
     }
 
     const onLike = async (blog) => {

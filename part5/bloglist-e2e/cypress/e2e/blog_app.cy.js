@@ -33,7 +33,7 @@ describe('Blog App', () => {
     const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
     function generateString(length) {
-      let result = ' ';
+      let result = '';
       const charactersLength = characters.length;
       for ( let i = 0; i < length; i++ ) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -59,8 +59,7 @@ describe('Blog App', () => {
     })
 
     it('A blog can be liked', () => {
-      cy.contains('new blog').click()
-      const title = generateString(10).replace(' ', '')
+      const title = generateString(10)
       cy.get('#new-blog-button').click()
       cy.get('#title').type(title)
       cy.get('#author').type('Author One')
@@ -72,6 +71,21 @@ describe('Blog App', () => {
       cy.contains('like').click()
 
       cy.contains('1 like')
+    })
+
+    it('A blog can be deleted', () => {
+      const title = generateString(10)
+      cy.get('#new-blog-button').click()
+      cy.get('#title').type(title)
+      cy.get('#author').type('Author One')
+      cy.get('#url').type('https://example.com')
+      cy.get('#create-button').click()
+
+      cy.get(`#view-button-${title}`).click();
+      cy.contains('remove').click()
+
+      cy.on('window:confirm', () => true)
+      cy.contains('removed')
     })
 
   })
