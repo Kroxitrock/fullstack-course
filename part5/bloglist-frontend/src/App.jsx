@@ -1,10 +1,13 @@
 import {useEffect, useState} from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
+import Notification from "./components/Notification.jsx";
 
 const App = () => {
     const [blogs, setBlogs] = useState([])
     const [user, setUser] = useState(null)
+    const [message, setMessage] = useState('')
+    const [notificationType, setNotificationType] = useState('')
 
     useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -56,6 +59,7 @@ const App = () => {
         return (
             <div>
                 <h2>blogs</h2>
+                <Notification message={message} setMessage={setMessage} notificationType={notificationType}></Notification>
                 <h2>{user.name} logged in <button onClick={event => {
                     event.preventDefault()
                     window.localStorage.removeItem('user')
@@ -76,8 +80,12 @@ const App = () => {
                             event.target.title.value = ''
                             event.target.author.value = ''
                             event.target.url.value = ''
+                            setMessage(`a new blog ${newBlog.title} by ${newBlog.author} added`)
+                            setNotificationType('success')
                         })
                         .catch(error => {
+                            setMessage('blog creation failed')
+                            setNotificationType('error')
                             console.error('Blog creation failed:', error)
                         })
                 }}>

@@ -13,6 +13,9 @@ const getAll = () => {
 
 const create = async (newObject) => {
     const response = await axios.post(baseUrl, newObject)
+    if (response.status !== 201) {
+        throw new Error('Failed to create blog')
+    }
     return response.data
 }
 
