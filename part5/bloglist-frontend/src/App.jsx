@@ -65,6 +65,37 @@ const App = () => {
                 {blogs.map(blog =>
                     <Blog key={blog.id} blog={blog} />
                 )}
+                <form onSubmit={event => {
+                    event.preventDefault()
+                    const title = event.target.title.value
+                    const author = event.target.author.value
+                    const url = event.target.url.value
+                    blogService.create({ title, author, url })
+                        .then(newBlog => {
+                            setBlogs(blogs.concat(newBlog))
+                            event.target.title.value = ''
+                            event.target.author.value = ''
+                            event.target.url.value = ''
+                        })
+                        .catch(error => {
+                            console.error('Blog creation failed:', error)
+                        })
+                }}>
+                    <h2>create new</h2>
+                    <div>
+                        title
+                        <input type="text" name="title" />
+                    </div>
+                    <div>
+                        author
+                        <input type="text" name="author" />
+                    </div>
+                    <div>
+                        url
+                        <input type="text" name="url" />
+                    </div>
+                    <button type="submit">create</button>
+                </form>
             </div>
         )
     }
