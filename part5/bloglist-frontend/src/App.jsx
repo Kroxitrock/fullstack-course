@@ -62,13 +62,13 @@ const App = () => {
                 }}>
                     <div>
                         username
-                        <input type="text" name="username"/>
+                        <input type="text" name="username" id="username"/>
                     </div>
                     <div>
                         password
-                        <input type="password" name="password"/>
+                        <input type="password" name="password" id="password"/>
                     </div>
-                    <button type="submit">login</button>
+                    <button type="submit" id="login-button">login</button>
                 </form>
             </div>
         )

@@ -1,0 +1,14 @@
+{
+  "name": "bloglist-e2e",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "cypress:open": "cypress open"
+  },
+  "author": "Andrey Strinski",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "cypress": "^14.3.0"
+  }
+}
