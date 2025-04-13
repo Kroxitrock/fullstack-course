@@ -44,6 +44,8 @@ const App = () => {
         return (
             <div>
                 <h2>login</h2>
+                <Notification message={message} setMessage={setMessage}
+                              notificationType={notificationType}></Notification>
                 <form onSubmit={event => {
                     event.preventDefault()
                     const username = event.target.username.value
@@ -57,6 +59,8 @@ const App = () => {
                             event.target.password.value = ''
                         })
                         .catch(error => {
+                            setMessage('wrong username or password')
+                            setNotificationType('error')
                             console.error('Login failed:', error)
                         })
                 }}>
