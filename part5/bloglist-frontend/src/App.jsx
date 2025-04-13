@@ -88,17 +88,10 @@ const App = () => {
                     <Blog key={blog.id} blog={blog} onDelete={onDelete} onLike={onLike}/>
                 )}
                 <Toggleable buttonLabel="new blog" show={showCreateForm} setShowCreateForm={setShowCreateForm}>
-                    <CreateBlogForm setShowCreateForm={setShowCreateForm} handleCreateBlog={event => {
-                        event.preventDefault()
-                        const title = event.target.title.value
-                        const author = event.target.author.value
-                        const url = event.target.url.value
-                        blogService.create({title, author, url})
+                    <CreateBlogForm setShowCreateForm={setShowCreateForm} handleCreateBlog={blog => {
+                        blogService.create(blog)
                             .then(newBlog => {
                                 setBlogs(blogs.concat(newBlog))
-                                event.target.title.value = ''
-                                event.target.author.value = ''
-                                event.target.url.value = ''
                                 setMessage(`a new blog ${newBlog.title} by ${newBlog.author} added`)
                                 setShowCreateForm(false)
                                 setNotificationType('success')
