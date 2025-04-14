@@ -107,5 +107,19 @@ describe('Blog App', () => {
 
     });
 
+    it('Blogs are ordered by likes', () => {
+      cy.get('.blog').then((blogs) => {
+        let likeTimes = 0;
+
+        for (let i = blogs.length - 1; i > 0; i--) {
+            const blog = blogs[i];
+
+            const newLikes = parseInt(blog.className.match(/blog-(\d+)/)[1], 10);
+            console.log(`blog-${newLikes}`);
+            cy.wrap(newLikes).should('be.gte', likeTimes);
+            likeTimes = newLikes;
+        }
+      })
+    });
   })
 })
